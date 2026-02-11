@@ -71,6 +71,24 @@ body{
   letter-spacing: -0.02em;
 }
 
+@media (max-width: 520px) {
+  .topbar .wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .titleblock h1 {
+    font-size: 28px; /* ili malo manje */
+    line-height: 1.05;
+  }
+}
+
 .brand {
   display: flex;
   align-items: center;

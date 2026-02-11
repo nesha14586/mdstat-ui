@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/nesha14586/mdstat-ui">
-  <img width="250" alt="scrutiny_view" src="assets/logo.svg">
+  <img width="250" alt="mdstat-ui logo" src="assets/logo.svg">
   </a>
 </p>
 
@@ -75,7 +75,7 @@ of array health without installing a full monitoring stack.
 ## Quick Start
 
 ``` bash
-git clone https://github.com/YOUR_USERNAME/mdstat-ui.git
+git clone https://github.com/nesha14586/mdstat-ui.git
 cd mdstat-ui
 cp docker-compose.example.yml docker-compose.yml
 # edit docker-compose.yml and set your /dev/mdX and disks
@@ -84,7 +84,7 @@ docker compose up -d --build
 
 Open:
 
-http://YOUR_SERVER_IP:8099
+http://localhost:8099
 
 ------------------------------------------------------------------------
 
@@ -116,13 +116,6 @@ If both `include_arrays` and `exclude_arrays` are empty, all detected arrays wil
 
 The generator container writes `status.json` to the shared volume.
 Make sure the project directory is writable by Docker.
-
-If you encounter permission errors:
-
-``` bash
-sudo chown -R root:root .
-sudo chmod -R 755 .
-```
 
 ## Security Model
 

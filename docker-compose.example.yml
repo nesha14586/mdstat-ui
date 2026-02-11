@@ -56,3 +56,4 @@ services:
       - "8099:80"
     volumes:
       - ./web:/usr/share/nginx/html:ro
+      - ./assets:/usr/share/nginx/html/assets:ro

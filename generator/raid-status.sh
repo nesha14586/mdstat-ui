@@ -176,6 +176,8 @@ def parse_mdadm_detail(detail_text: str):
     raid_level = pick(r'^\s*Raid Level\s*:\s*(.+)$', "")
     raid_devices = pick(r'^\s*Raid Devices\s*:\s*(\d+)\s*$', "")
     spare = pick(r'^\s*Spare Devices\s*:\s*(\d+)\s*$', "")
+    array_size = pick(r'^\s*Array Size\s*:\s*(.+)$', "")
+    used_dev_size = pick(r'^\s*Used Dev Size\s*:\s*(.+)$', "")
 
     # fallback degraded
     if degraded in ("", "unknown"):
@@ -252,6 +254,8 @@ def parse_mdadm_detail(detail_text: str):
         "raid_level": raid_level,
         "raid_devices": raid_devices,
         "spare": spare,
+        "array_size": array_size,
+        "used_dev_size": used_dev_size,
         "members": members
     }
 
@@ -265,7 +269,7 @@ for array_path in discover_arrays():
 
     parsed = parse_mdadm_detail(detail) if not detail.startswith("ERROR:") else {
         "state":"unknown", "active":"unknown", "degraded":"unknown", "failed":"unknown",
-        "raid_level":"", "raid_devices":"", "spare":"", "members":[]
+        "raid_level":"", "raid_devices":"", "spare":"", "array_size":"", "used_dev_size":"", "members":[]
     }
 
     arrays.append({
@@ -279,6 +283,8 @@ for array_path in discover_arrays():
         "raid_level": parsed["raid_level"],
         "raid_devices": parsed["raid_devices"],
         "spare": parsed["spare"],
+        "array_size": parsed.get("array_size", ""),
+        "used_dev_size": parsed.get("used_dev_size", ""),
         "progress": extract_progress(md_name),
         "members": parsed["members"],
         "detail": detail

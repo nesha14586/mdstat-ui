@@ -169,6 +169,25 @@ def parse_mdadm_detail(detail_text: str):
         m = re.search(pattern, detail_text, re.MULTILINE)
         return m.group(1).strip() if m else default
 
+    def pick_size_line(label: str) -> str:
+        # returns everything after ":" on the first matching line, e.g.
+        # "11720780800 (10.92 TiB 12.00 TB)"
+        return pick(rf'^\s*{re.escape(label)}\s*:\s*(.+)$', "")
+
+    def human_from_size_line(size_line: str) -> str:
+        # turns "(10.92 TiB 12.00 TB)" into "10.92 TiB (12.00 TB)"
+        if not size_line:
+            return ""
+        m = re.search(r'\(([^)]+)\)', size_line)
+        if not m:
+            return ""
+        inner = " ".join(m.group(1).strip().split())
+        parts = inner.split()
+        # most common mdadm format: "<num> <unit1> <num> <unit2>"
+        if len(parts) == 4:
+            return f"{parts[0]} {parts[1]} ({parts[2]} {parts[3]})"
+        return inner
+
     state = pick(r'^\s*State\s*:\s*(.+)$', "unknown")
     active = pick(r'^\s*Active Devices\s*:\s*(\d+)\s*$', "unknown")
     failed = pick(r'^\s*Failed Devices\s*:\s*(\d+)\s*$', "unknown")
@@ -176,8 +195,10 @@ def parse_mdadm_detail(detail_text: str):
     raid_level = pick(r'^\s*Raid Level\s*:\s*(.+)$', "")
     raid_devices = pick(r'^\s*Raid Devices\s*:\s*(\d+)\s*$', "")
     spare = pick(r'^\s*Spare Devices\s*:\s*(\d+)\s*$', "")
-    array_size = pick(r'^\s*Array Size\s*:\s*(.+)$', "")
-    used_dev_size = pick(r'^\s*Used Dev Size\s*:\s*(.+)$', "")
+    array_size = pick_size_line("Array Size")
+    used_dev_size = pick_size_line("Used Dev Size")
+    array_size_human = human_from_size_line(array_size)
+    used_dev_size_human = human_from_size_line(used_dev_size)
 
     # fallback degraded
     if degraded in ("", "unknown"):
@@ -256,6 +277,8 @@ def parse_mdadm_detail(detail_text: str):
         "spare": spare,
         "array_size": array_size,
         "used_dev_size": used_dev_size,
+        "array_size_human": array_size_human,
+        "used_dev_size_human": used_dev_size_human,
         "members": members
     }
 
@@ -269,7 +292,7 @@ for array_path in discover_arrays():
 
     parsed = parse_mdadm_detail(detail) if not detail.startswith("ERROR:") else {
         "state":"unknown", "active":"unknown", "degraded":"unknown", "failed":"unknown",
-        "raid_level":"", "raid_devices":"", "spare":"", "array_size":"", "used_dev_size":"", "members":[]
+        "raid_level":"", "raid_devices":"", "spare":"", "array_size":"", "used_dev_size":"", "array_size_human":"", "used_dev_size_human":"", "members":[]
     }
 
     arrays.append({
@@ -285,6 +308,8 @@ for array_path in discover_arrays():
         "spare": parsed["spare"],
         "array_size": parsed.get("array_size", ""),
         "used_dev_size": parsed.get("used_dev_size", ""),
+        "array_size_human": parsed.get("array_size_human", ""),
+        "used_dev_size_human": parsed.get("used_dev_size_human", ""),
         "progress": extract_progress(md_name),
         "members": parsed["members"],
         "detail": detail

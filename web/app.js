@@ -244,8 +244,8 @@ function arrayCard(a, globalMdstat){
   const raidLevelRaw = (a.raid_level || "").toString().trim();
   const raidLevel = raidLevelRaw ? raidLevelRaw.toUpperCase() : "";
 
-  const arraySize = (a.array_size || "").toString().trim();       // e.g. "11720780800 (10.92 TiB 12.00 TB)"
-  const usedDevSize = (a.used_dev_size || "").toString().trim();  // e.g. "5860390400 (5.46 TiB 6.00 TB)"
+  const arraySize = ((a.array_size_human || a.array_size) || "").toString().trim();
+  const usedDevSize = ((a.used_dev_size_human || a.used_dev_size) || "").toString().trim();
 
   const parts = [];
   if(raidLevel) parts.push(`<span class="k">RAID:</span> <span class="v mono">${raidLevel}</span>`);
